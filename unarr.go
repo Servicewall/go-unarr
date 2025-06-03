@@ -22,6 +22,8 @@ var (
 	ErrEntryFor    = errors.New("unarr: failed to parse entry for")
 	ErrSeek        = errors.New("unarr: seek failed")
 	ErrRead        = errors.New("unarr: read failure")
+	ErrEmptyMemory = errors.New("unarr: empty memory provided")
+	ErrReadReader  = errors.New("unarr: failed to read from reader")
 )
 
 // Archive represents unarr archive
@@ -49,8 +51,10 @@ func NewArchive(path string) (a *Archive, err error) {
 
 // NewArchiveFromMemory returns new unarr Archive from byte slice
 func NewArchiveFromMemory(b []byte) (a *Archive, err error) {
+	if len(b) == 0 {
+		return nil, ErrEmptyMemory
+	}
 	a = new(Archive)
-
 	a.stream = unarrc.OpenMemory(unsafe.Pointer(&b[0]), uint(len(b)))
 	if a.stream == nil {
 		err = ErrOpenMemory
@@ -66,13 +70,9 @@ func NewArchiveFromMemory(b []byte) (a *Archive, err error) {
 func NewArchiveFromReader(r io.Reader) (a *Archive, err error) {
 	b, e := io.ReadAll(r)
 	if e != nil {
-		err = e
-		return
+		return nil, ErrReadReader
 	}
-
-	a, err = NewArchiveFromMemory(b)
-
-	return
+	return NewArchiveFromMemory(b)
 }
 
 // open opens archive
