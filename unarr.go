@@ -10,7 +10,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/gen2brain/go-unarr/unarrc"
+	"github.com/Servicewall/go-unarr/unarrc"
 )
 
 var (
